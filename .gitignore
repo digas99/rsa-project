@@ -1,1 +1,7 @@
+# Python3 virtual environment
 venv
+
+# YOLOv3
+*.weights
+*.cfg
+*.names

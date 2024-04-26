@@ -15,6 +15,13 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+3. Download YOLOv3 weights and configuration
+
+```bash
+chmod +x get_yolov3.sh 
+./get_yolov3.sh
+```
+
 ## Architecture Diagram
 
 ![Architecture Diagram](./diagram/rsa-project.png)
