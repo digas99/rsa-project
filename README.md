@@ -22,6 +22,16 @@ chmod +x get_yolov3.sh
 ./get_yolov3.sh
 ```
 
+4. Run the app
+
+```bash
+python3 app.py -i <image> -c yolov3.cfg -w yolov3.weights -cl coco.names
+```
+or
+```bash
+./run.sh <image>
+```
+
 ## Architecture Diagram
 
 ![Architecture Diagram](./diagram/rsa-project.png)
