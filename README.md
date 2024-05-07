@@ -25,7 +25,7 @@ chmod +x get_yolov3.sh
 4. Run the app
 
 ```bash
-python3 app.py -i <image> -c yolov3.cfg -w yolov3.weights -cl coco.names
+python3 src/app.py -i <image> -c yolov3/yolov3.cfg -w yolov3/yolov3.weights -cl yolov3/coco.names
 ```
 or
 ```bash
