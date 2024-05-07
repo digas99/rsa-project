@@ -18,7 +18,7 @@ pip3 install -r requirements.txt
 3. Run the app
 
 ```bash
-python3 src/app.py
+python3 src/app.py [-i <image>]
 ```
 
 ## Architecture Diagram
