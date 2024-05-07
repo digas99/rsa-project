@@ -1,68 +1,55 @@
 import cv2
-import numpy as np
+from ultralytics import YOLO
 
 class Detector:
-	def __init__(self, config, weights, classes):
-		self.net = cv2.dnn.readNet(weights, config)
-		self.output_layers = self.net.getUnconnectedOutLayersNames()
-		self.scale = 0.00392
-		self.conf_threshold = 0.5
-		self.nms_threshold = 0.4
-		
-		with open(classes, 'r') as f:
-			self.classes = [line.strip() for line in f.readlines()]
-		
-		self.colors = np.random.uniform(0, 255, size=(len(self.classes), 3))
-		
-	def detect(self, image):
-		H, W, _ = image.shape
-		blob = cv2.dnn.blobFromImage(image, self.scale, (416,416), (0,0,0), True, crop=False)
-		self.net.setInput(blob)
-		outs = self.net.forward(self.output_layers)
-		
-		class_ids = []
-		confidences = []
-		boxes = []
-		
-		for out in outs:
-			for detection in out:
-				scores = detection[5:]
-				class_id = np.argmax(scores)
-				confidence = scores[class_id]
-				if confidence > self.conf_threshold:
-					center_x = int(detection[0] * W)
-					center_y = int(detection[1] * H)
-					w = int(detection[2] * W)
-					h = int(detection[3] * H)
-					x = center_x - w / 2
-					y = center_y - h / 2
-					class_ids.append(class_id)
-					confidences.append(float(confidence))
-					boxes.append([x, y, w, h])
-		
-		indices = cv2.dnn.NMSBoxes(boxes, confidences, self.conf_threshold, self.nms_threshold)
-		
-		for i in indices:
-			box = boxes[i]
-			x = box[0]
-			y = box[1]
-			w = box[2]
-			h = box[3]
-			
-			self.draw_bounding_box(image, class_ids[i], round(x), round(y), round(x+w), round(y+h))
-		
-		return image
+	def __init__(self):
+		self.classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
+              "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
+              "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
+              "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
+              "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
+              "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli",
+              "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed",
+              "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone",
+              "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
+              "teddy bear", "hair drier", "toothbrush"
+              ]
+		self.model = YOLO("yolov8/yolov8n.pt", verbose=False)
+		self.people = 0
 
-	def draw_bounding_box(self, img, class_id, x, y, x_plus_w, y_plus_h):
-		label = str(self.classes[class_id])
-		color = self.colors[class_id]
-		cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 2)
-		cv2.putText(img, label, (x-10,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+		
+	def stream(self, callback, show=True):
+		cap = cv2.VideoCapture(0)
+		cap.set(3, 640)
+		cap.set(4, 480)
 
-	def show(self, image):
-		cv2.imshow('Object Detection', image)
-		cv2.waitKey(0)
+		while True:
+			ret, frame = cap.read()
+			if not ret:
+				break
+
+			results = self.model(frame, stream=True)
+			self.people = 0
+			for result in results:
+				boxes = result.boxes
+				for box in boxes:
+					cls = int(box.cls[0])
+					if self.classNames[cls] == "person":
+						self.people += 1
+					
+					if show and self.classNames[cls] == "person":
+						x, y, w, h = box.xyxy[0]
+						x, y, w, h = int(x), int(y), int(w), int(h)
+						cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 2)
+
+						cv2.putText(frame, self.classNames[cls], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+
+			callback(self.people)
+
+			if show:
+				cv2.imshow("Frame", frame)
+				if cv2.waitKey(1) & 0xFF == ord("q"):
+					break
+
+		cap.release()
 		cv2.destroyAllWindows()
-
-	def export(self, image, path):
-		cv2.imwrite(path, image)

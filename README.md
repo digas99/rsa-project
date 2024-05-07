@@ -15,21 +15,10 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
-3. Download YOLOv3 weights and configuration
+3. Run the app
 
 ```bash
-chmod +x get_yolov3.sh 
-./get_yolov3.sh
-```
-
-4. Run the app
-
-```bash
-python3 src/app.py -i <image> -c yolov3/yolov3.cfg -w yolov3/yolov3.weights -cl yolov3/coco.names
-```
-or
-```bash
-./run.sh <image>
+python3 src/app.py
 ```
 
 ## Architecture Diagram
