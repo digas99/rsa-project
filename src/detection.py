@@ -1,4 +1,6 @@
 import cv2
+
+from picamera2 import Picamera2
 from ultralytics import YOLO
 
 class Detector:
@@ -16,8 +18,8 @@ class Detector:
               ]
 		self.model = YOLO("yolov8/yolov8n.pt")
 
-	def detect(self, callback, image, object, stream=False, show=True):
-		results = self.model(image, stream, verbose=False)
+	def detect(self, callback, frame, object, stream=False, show=True):
+		results = self.model(frame, stream, verbose=False)
 		counter = 0
 		for result in results:
 			boxes = result.boxes
@@ -29,15 +31,18 @@ class Detector:
 				if self.classNames[cls] == object:
 					x, y, w, h = box.xyxy[0]
 					x, y, w, h = int(x), int(y), int(w), int(h)
-					cv2.rectangle(image, (x, y), (w, h), (0, 255, 0), 2)
+					cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 2)
 
-					cv2.putText(image, self.classNames[cls], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+					cv2.putText(frame, self.classNames[cls], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+
+		# jpeg version of the image
+		image = cv2.imencode(".jpg", frame)[1].tobytes()
 
 		if callback:
-			callback(counter, image)
+			callback(counter, frame, image)
 
 		if show:
-			cv2.imshow("Frame", image)
+			cv2.imshow("Frame", frame)
 			
 			if stream:
 				return
@@ -46,6 +51,26 @@ class Detector:
 			cv2.destroyAllWindows()
 
 		return counter
+
+	def stream_picam(self, callback, object="person", show=True):
+		cap = Picamera2()
+		cap.start()
+
+		while True:
+			frame = cap.capture_array("main")
+			# slice frame to get only 3 channels
+			if frame.shape[2] == 4:
+				frame = frame[:, :, :3]
+
+			self.detect(callback, frame, object, stream=True, show=show)
+
+			if cv2.waitKey(1) & 0xFF == ord("q"):
+				cv2.destroyAllWindows()
+				break
+
+		cap.stop()
+		cv2.destroyAllWindows()
+
 
 	def stream(self, callback, object="person", show=True):
 		cap = cv2.VideoCapture(0)

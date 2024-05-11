@@ -2,23 +2,38 @@
 
 ## Setup
 
-1. Create a python virtual environment and activate it
+On the Raspberry Pi, you need to install the following packages, **using sudo**:
+
+1. Picamera2
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+sudo apt install -y python3-picamera2
 ```
 
-2. Install the requirements
+2. OpenCV
 
 ```bash
-pip3 install -r requirements.txt
+sudo apt-get install python3-opencv
 ```
 
-3. Run the app
+3. Ultralytics
 
 ```bash
-python3 src/app.py [-i <image>]
+sudo pip3 install --break-system-packages ultralytics
+```
+
+4. Flask
+
+```bash
+sudo apt install python3-flask
+```
+
+## Run
+
+On the root directory of the project, run the following command:
+
+```bash
+sudo python3 src/app.py
 ```
 
 ## Architecture Diagram
