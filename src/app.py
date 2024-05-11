@@ -6,8 +6,6 @@ import threading
 import logging
 import numpy as np
 
-from PIL import Image
-from io import BytesIO
 from http import server
 from picamera2 import Picamera2
 from detection import Detector
