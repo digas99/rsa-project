@@ -1,4 +1,7 @@
 import cv2
+import numpy as np
+import sys
+import libcamera
 
 from picamera2 import Picamera2
 from ultralytics import YOLO
@@ -19,8 +22,10 @@ class Detector:
 		self.model = YOLO("yolov8/yolov8n.pt")
 
 	def detect(self, callback, frame, object, stream=False, show=True):
-		results = self.model(frame, stream, verbose=False)
+		results = self.model(frame, stream)
 		counter = 0
+		frame = np.ascontiguousarray(frame)
+
 		for result in results:
 			boxes = result.boxes
 			for box in boxes:
@@ -34,6 +39,7 @@ class Detector:
 					cv2.rectangle(frame, (x, y), (w, h), (0, 255, 0), 2)
 
 					cv2.putText(frame, self.classNames[cls], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+				pass
 
 		# jpeg version of the image
 		image = cv2.imencode(".jpg", frame)[1].tobytes()
@@ -54,13 +60,17 @@ class Detector:
 
 	def stream_picam(self, callback, object="person", show=True):
 		cap = Picamera2()
+		preview_config = cap.create_preview_configuration(main={
+			"size": (640, 480),
+			"format": 'RGB888'
+		})
+		preview_config["transform"] = libcamera.Transform(hflip=1, vflip=1)
+		cap.configure(preview_config)
+
 		cap.start()
 
 		while True:
 			frame = cap.capture_array("main")
-			# slice frame to get only 3 channels
-			if frame.shape[2] == 4:
-				frame = frame[:, :, :3]
 
 			self.detect(callback, frame, object, stream=True, show=show)
 

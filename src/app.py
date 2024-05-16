@@ -5,6 +5,7 @@ import socketserver
 import threading
 import logging
 import numpy as np
+import piexif
 
 from http import server
 from picamera2 import Picamera2
@@ -112,7 +113,7 @@ def main():
 		server_thread.daemon = True
 		server_thread.start()
 
-		detector.stream_picam(handle_stream, object="person", show=False)
+		detector.stream(handle_stream, object="person", show=False)
 
 if __name__ == "__main__":
 	main()
