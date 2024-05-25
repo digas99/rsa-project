@@ -8,3 +8,7 @@ venv
 yolov8
 
 output
+
+**/__pycache__/
+
+src/mission/missions
