@@ -59,7 +59,7 @@ setup(
 
 Install dummy package
 ```bash
-pip install --no-deps opencv-pip
+pip install --no-deps opencv-python
 ```
 
 ### Clone ultralytics
