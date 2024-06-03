@@ -26,3 +26,4 @@ class MQTTClient:
 	def on_connect(self, client, userdata, flags, rc):
 		print(f"Connected with result code {rc}")
 		self.client.subscribe(self.topic)
+

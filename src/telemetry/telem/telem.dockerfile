@@ -29,5 +29,12 @@ RUN python3 -m pip install \
 
 COPY app.py /home/
 COPY telem /home/telem
+COPY entrypoint.sh /home/
 
 WORKDIR /home/
+
+# Set the entrypoint to the wrapper script
+ENTRYPOINT ["/home/entrypoint.sh"]
+
+# Default command to run the app
+CMD ["python3", "app.py", "drone01"]

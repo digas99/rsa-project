@@ -5,9 +5,26 @@ from threading import Thread
 import json
 from telem.messages import MQTTClient  # Import the MQTT client
 
+class TelemetryClient(MQTTClient):
+
+    def __init__(self, broker='localhost', port=1884, topic='/telem', node=None):
+        self.node = node
+        self.drone = node.drone_id
+
+        super().__init__(broker=broker, port=port, topic=topic)
+
+    def on_message(self, client, userdata, message):
+        payload = message.payload.decode()
+        data = json.loads(payload)
+        drone = data.get('drone_id')
+
+        if drone != self.drone:
+            print(f"[MQTT] [COORDS] {drone}: {data.get('coords')}")
+
+
 class Telemetry(Node):
 
-    def __init__(self, drone='drone01', broker='localhost', port=1883, mqtt_topic='/telem'):
+    def __init__(self, drone='drone01', broker='localhost', port=1884, mqtt_topic='/telem'):
         rclpy.init()
         self.topic = '/telem'
         self.drone_id = drone
@@ -15,7 +32,7 @@ class Telemetry(Node):
         super().__init__('telemetry')
 
         self.subscription = self.create_subscription(String, self.topic, lambda msg: self.drone_telem_callback(msg.data), 10)
-        self.mqtt_client = MQTTClient(broker=broker, port=port, topic=mqtt_topic)
+        self.mqtt_client = TelemetryClient(broker=broker, port=port, topic=mqtt_topic, node=self)
 
     def start(self):
         thread = Thread(target=self.init_pub)
