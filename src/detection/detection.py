@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 import sys
+import libcamera
 
+from picamera2 import Picamera2
 from ultralytics import YOLO
 
 class Detector:
@@ -19,9 +21,10 @@ class Detector:
               ]
 		self.model = YOLO("yolov8/yolov8n.pt")
 
-	def detect(self, callback, frame, target):
-		results = self.model(frame, True)
+	def detect(self, callback, frame, target, stream=False, show=True):
+		results = self.model(frame, stream)
 		counter = 0
+		frame = np.ascontiguousarray(frame)
 
 		for result in results:
 			boxes = result.boxes
@@ -40,41 +43,60 @@ class Detector:
 
 		# jpeg version of the image
 		image = cv2.imencode(".jpg", frame)[1].tobytes()
-		
+
 		if callback:
 			callback(counter, frame, image)
 
+		if show:
+			cv2.imshow("Frame", frame)
+			
+			if stream:
+				return
+			
+			cv2.waitKey(0)
+			cv2.destroyAllWindows()
+
 		return counter
 
-	def stream(self, callback, target="person"):
-		# Define the GStreamer pipeline
-		gst_pipeline = (
-			"nvarguscamerasrc ! "
-			"video/x-raw(memory:NVMM),width=640,height=480,framerate=21/1,format=NV12 ! "
-			"nvvidconv ! "
-			"video/x-raw,format=(string)I420 ! "
-			"videoconvert ! "
-			"appsink"
-		)
+	def stream_picam(self, callback, target="person", show=True):
+		cap = Picamera2()
+		preview_config = cap.create_preview_configuration(main={
+			"size": (640, 480),
+			"format": 'RGB888'
+		})
+		preview_config["transform"] = libcamera.Transform(hflip=1, vflip=1)
+		cap.configure(preview_config)
+
+		cap.start()
 
 		while True:
-			# Open the camera using the GStreamer pipeline
-			cap = cv2.VideoCapture(gst_pipeline, cv2.CAP_GSTREAMER)
-			if not cap.isOpened():
-				print("Error: Could not open video stream.")
+			frame = cap.capture_array("main")
+
+			self.detect(callback, frame, target, stream=True, show=show)
+
+			if cv2.waitKey(1) & 0xFF == ord("q"):
+				cv2.destroyAllWindows()
 				break
 
-			while True:
-				ret, frame = cap.read()
-				if not ret:
-					print("Error: Could not read frame.")
-					break
+		cap.stop()
+		cv2.destroyAllWindows()
 
-				try:
-					self.detect(callback, frame, target)
-				except Exception as e:
-					print(f"Error during detection: {e}")
-					break
 
-			cap.release()
-			print("Stream stopped, attempting to restart...")
+	def stream(self, callback, target="person", show=True):
+		cap = cv2.VideoCapture(0)
+		cap.set(3, 640)
+		cap.set(4, 480)
+
+		while True:
+			ret, frame = cap.read()
+			if not ret:
+				break
+
+			self.detect(callback, frame, target, stream=True, show=show)
+
+			if cv2.waitKey(1) & 0xFF == ord("q"):
+				cv2.destroyAllWindows()
+				break
+
+		cap.release()
+		cv2.destroyAllWindows()

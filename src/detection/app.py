@@ -10,7 +10,7 @@ def handle_stream(people, frame, image):
 
 def main():
 	detector = Detector()
-	detector.stream(handle_stream, target="person")
+	detector.stream_picam(handle_stream, target="person", show=False)
 
 if __name__ == "__main__":
 	main()
