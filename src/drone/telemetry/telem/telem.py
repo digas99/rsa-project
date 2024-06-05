@@ -3,11 +3,11 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from threading import Thread
 import json
-from telem.messages import MQTTClient  # Import the MQTT client
+from messages import MQTTClient  # Import the MQTT client
 
 class TelemetryClient(MQTTClient):
 
-    def __init__(self, broker='localhost', port=1884, topic='/telem', node=None):
+    def __init__(self, broker='localhost', port=1883, topic='/telem', node=None):
         self.node = node
         self.drone = node.drone_id
 
@@ -24,7 +24,7 @@ class TelemetryClient(MQTTClient):
 
 class Telemetry(Node):
 
-    def __init__(self, drone='drone01', broker='localhost', port=1884, mqtt_topic='/telem'):
+    def __init__(self, drone='drone01', broker='localhost', port=1883, mqtt_topic='/telem'):
         rclpy.init()
         self.topic = '/telem'
         self.drone_id = drone

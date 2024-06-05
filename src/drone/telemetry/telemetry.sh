@@ -8,7 +8,7 @@ fi
 # check if fleetman/ros:galactic image exists
 if [ -z "$(docker images -q fleetman/ros:galactic)" ]; then
 	echo "Building fleetman/ros:galactic image"
-	docker build -t fleetman/ros:galactic -f deps/ros.dockerfile .
+	sudo docker build -t fleetman/ros:galactic -f deps/ros.dockerfile .
 fi
 
 docker build -t rsa/telem -f telem/telem.dockerfile telem
