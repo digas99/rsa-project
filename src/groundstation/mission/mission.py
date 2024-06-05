@@ -27,15 +27,15 @@ class Missions:
 			coords = polygon.exterior.coords if self.close_loop else polygon.exterior.coords[:-1]
 
 			file_content = (
-				f'drone = assign {drone}' + '\n' 
+				f'drone = assign \'{drone}\'' + '\n' 
 				f'arm drone' + '\n'
 				f'takeoff drone, {self.alt}.m'  + '\n'
 				+ '\n'.join(
 					[
-						f'move drone,'
-							f'lat: {coords[0]},'
-							f'lon: {coords[1]},'
-							f'alt: drone.position.alt,'
+						f'move drone, '
+							f'lat: {coords[0]}, '
+							f'lon: {coords[1]}, '
+							f'alt: drone.position.alt, '
 							f'speed: {self.speed}.m/s'
 					for coords in coords]) + '\n'
 				f'land drone'
@@ -57,3 +57,5 @@ class Missions:
 		for mission_file in self.mission_files:
 			with open(os.path.join(self.save_path, mission_file['file']), 'w') as f:
 				f.write(mission_file['content'])
+
+		return self.mission_files

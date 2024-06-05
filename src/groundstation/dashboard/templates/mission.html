@@ -1,0 +1,118 @@
+<html>
+<head>
+    <title>Mission</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+		integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+		crossorigin=""/>
+	<!-- Make sure you put this AFTER Leaflet's CSS -->
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+		integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+		crossorigin=""></script>
+
+	<link rel="stylesheet" href="static/styles/mission.css"></link>
+</head>
+    <body>
+		<script type="text/javascript"> const tileUrl = "{{ tile_url|safe }}";</script>
+
+		<div class="step" data-index="1">
+			<div class="title"><div>1</div><div>Generate Mission</div></div>
+			<div class="content">
+				<div id="map" style="height: 400px;"></div>
+				<div class="map-info">Right click to add coordinates</div>
+		
+				<div class="container">
+					<div>
+						<div>Coordinates</div>
+						<div class="coords">
+		
+						</div>
+					</div>
+					<div class="info">
+						<div class="drone-info">
+							<div>
+								<div>Drone: </div>
+								<input type="text">
+							</div>
+							<div>
+								<div>Drone: </div>
+								<input type="text">
+							</div>
+						</div>
+						<div>
+							<button id="generate-mission">Generate Mission</button>
+							<button id="reset-map">Reset Map</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="step" data-index="2">
+			<div class="title"><div>2</div><div>Send Mission</div></div>
+			<div class="content" style="display: none;">
+				<div class="station-info">
+					<div class="station">
+						<div>Station: </div>
+						<input type="text" value="http://localhost:8001">
+						<div><div class="status offline"></div></div>
+					</div>
+				</div>
+				<div class="mission-info">
+					<div class="plot"></div>
+					<div class="mission-map">
+						<div id="mission-map" style="height: 400px;"></div>
+					</div>
+				</div>
+				<div class="drones">
+					<div>
+						<div class="drone-id">
+							<div>Drone: </div>
+							<div class="name">---</div>
+							<div><div class="status offline"></div></div>
+						</div>
+						<div class="drone-mission"></div>
+					</div>
+					<div>
+						<div class="drone-id">
+							<div>Drone: </div>
+							<div class="name">---</div>
+							<div><div class="status offline"></div></div>
+						</div>
+						<div class="drone-mission"></div>
+					</div>
+				</div>
+				<div class="actions">
+					<button id="send-mission">Send Mission</button>
+				</div>
+			</div>
+		</div>
+		<div class="step" data-index="3">
+			<div class="title"><div>3</div><div>View Mission</div></div>
+			<div class="content" style="display: none;">
+				<div class="drones-feed">
+					<div>
+						<div class="name">Drone: ---</div>
+						<img src="stream.mjpg" width="448" height="336" />
+						<div class="data">
+							<div>People</div><div class="count">0</div>
+						</div>
+					</div>
+					<div>
+						<div class="name">Drone: ---</div>
+						<img src="stream.mjpg" width="448" height="336" />
+						<div class="data">
+							<div>People</div><div class="count">0</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="loading" style="display: none;">
+			<div class="background"></div>
+			<div class="popup">Loading...</div>
+		</div>
+
+		<script src="static/scripts/mission.js"></script>
+    </body>
+</html>

@@ -1,0 +1,200 @@
+body {
+	max-width: 1200px;
+	margin: auto;
+}
+
+input[type="text"] {
+	font-size: 17px;
+	padding: 7px;
+	border: unset;
+	border-bottom: 1px solid #ccc;
+}
+
+button {
+	font-size: 17px;
+	padding: 10px 20px;
+	border: unset;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.step {
+	font-size: 20px;
+	margin: 10px;
+}
+
+.step > .title {
+	display: flex;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.step > .title:hover {
+	opacity: 0.7;
+}
+
+.step > .title > div {
+	padding: 10px;
+}
+
+.step > .title > div:first-child {
+
+}
+
+.step > .title > div:last-child {
+
+}
+
+.step > .content {
+
+}
+
+.map-info {
+	font-size: 16px;
+	color: gray;
+	padding: 10px;
+}
+
+.container {
+	display: flex;
+	column-gap: 20px;
+	padding: 20px;
+}
+
+.container > div {
+	flex: 1;
+}
+
+.coords {
+	font-size: 17px;
+}
+
+.info > div {
+	padding: 10px;
+}
+
+.drone-info > div {
+	padding: 10px;
+}
+
+.mission-info {
+	display: flex;
+	align-items: center;
+}
+
+.mission-info > div {
+	flex: 1;
+}
+
+.mission-info .plot img {
+	width: 500px;
+}
+
+.station-info {
+
+}
+
+.station-info > div {
+	padding: 10px;
+}
+
+.station-info > div, .drones .drone-id {
+	display: flex;
+	column-gap: 10px;
+	align-items: center;
+}
+
+.station-info .station {
+	width: fit-content;
+	margin: auto;
+}
+
+.drones {
+	display: flex;
+}
+
+.drones > div {
+	flex: 1;
+}
+
+.drones .drone-id {
+	padding: 10px;
+	margin: auto;
+	width: fit-content;
+}
+
+.drones .drone-mission {
+	height: 300px;
+	overflow: auto;
+	font-size: 18px;
+	padding: 10px 25px;
+}
+
+.drones .drone-mission > div {
+	padding: 5px 0px;
+	margin-bottom: 5px;
+	border-bottom: 1px solid #ccc;
+}
+
+.step[data-index="2"] .actions {
+	text-align: center;
+	padding: 20px;
+}
+
+.drones-feed {
+	display: flex;
+	column-gap: 10px;
+}
+
+.drones-feed > div {
+	flex: 1;
+	text-align: center;
+}
+
+.drones-feed > div .name, .drones-feed > div .data {
+	padding: 20px;
+}
+
+.drones-feed > div .count {
+	font-size: 70px;
+}
+
+.loading {
+
+}
+
+.loading .background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+}
+
+.loading .popup {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: white;
+	padding: 20px;
+	border-radius: 5px;
+	z-index: 1001;
+}
+
+.status {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+}
+
+.offline {
+	background-color: #f74040;
+}
+
+.online {
+	background-color: #3cd73c;
+}

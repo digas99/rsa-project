@@ -1,3 +1,5 @@
+import os
+import time
 from shapely.geometry import LineString, Point, Polygon, GeometryCollection
 from shapely.ops import split
 import math
@@ -31,10 +33,14 @@ class PolygonDivision:
 
 		return self.split_polygons.geoms
 
+	def polygons(self):
+		polygons = [list(polygon.exterior.coords) for polygon in self.split_polygons.geoms]
+		return polygons
+		
 	def resize(self, scale):
 		self.split_polygons = GeometryCollection([PolygonDivision.resize_polygon(polygon, scale) for polygon in self.split_polygons.geoms])
 
-	def plot(self):
+	def plot(self, show=True):
 		# Plot the original polygon
 		plt.figure(figsize=(10, 10))
 		x, y = self.polygon.exterior.xy
@@ -65,7 +71,20 @@ class PolygonDivision:
 		plt.ylabel('Latitude')
 		plt.legend()
 		plt.title('Polygon Split by Line')
-		plt.show()
+
+		if show:
+			plt.show()
+		
+
+		# create plots directory if it doesn't exist
+		if not os.path.exists('plots'):
+			os.makedirs('plots')
+
+		ms = int(round(time.time() * 1000))
+		path = f'plots/polygon-{ms}.png'
+		plt.savefig(path)
+
+		return path
 
 	def print(self):
 		for polygon in self.split_polygons.geoms:

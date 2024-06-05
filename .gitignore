@@ -11,4 +11,9 @@ output
 
 **/__pycache__/
 
-src/mission/missions
+src/groundstation/mission/missions
+src/groundstation/mission/plots
+src/groundstation/dashboard/missions
+src/groundstation/dashboard/plots
+
+.env
