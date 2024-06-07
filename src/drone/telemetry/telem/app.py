@@ -7,7 +7,7 @@ def main():
 	parser.add_argument('drone_id', type=str, help='Drone ID')
 	args = parser.parse_args()
 
-	telem = Telemetry(drone=args.drone_id, broker='10.1.1.4', port=1883, mqtt_topic='/telem')
+	telem = Telemetry(drone=args.drone_id, broker='localhost', port=1884, mqtt_topic=f'/telem/{args.drone_id}')
 	
 	try:
 		telem.start()

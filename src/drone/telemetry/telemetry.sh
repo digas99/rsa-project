@@ -11,5 +11,13 @@ if [ -z "$(docker images -q fleetman/ros:galactic)" ]; then
 	sudo docker build -t fleetman/ros:galactic -f deps/ros.dockerfile .
 fi
 
-docker build -t rsa/telem -f telem/telem.dockerfile telem
-docker run -it --network host --name rsa_telem rsa/telem $1
+CONTAINER_NAME="rsa_telem_drone_$1"
+
+# if container exists, remove it
+if [ ! -z "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
+	echo "Removing existing container $CONTAINER_NAME"
+	docker rm -f $CONTAINER_NAME
+fi
+
+docker build -t rsa/telem -f telem/telem.dockerfile ../ && \
+	docker run -it --network host --name $CONTAINER_NAME rsa/telem $1
