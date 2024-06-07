@@ -7,6 +7,14 @@ import os
 import sys
 import requests
 
+from sqlalchemy import create_engine
+from sqlalchemy.engine import reflection
+from db_config import *
+from models import *
+
+import mysql.connector
+from mysql.connector import Error
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -23,6 +31,27 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FONT_DIR = os.path.join(BASE_DIR, "fonts")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = get_db()
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = get_sqlalchemy_track_modifications()
+
+db.init_app(app)
+
+with app.app_context():
+    engine = create_engine(get_db())
+    inspector = reflection.Inspector.from_engine(engine)
+    tables = inspector.get_table_names()
+    if not "mission" in tables:
+        print(" * Creating tables...")
+        db.create_all()
+
+def get_db_connection():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        return conn
+    except Error as e:
+        print(f"Error connecting to MySQL: {e}")
+        return None
 
 # Global variables to store the latest image and timestamp
 latest_image = None
@@ -133,10 +162,12 @@ def generate():
 
     return jsonify(response)
 
+
 @app.route("/station", methods=["POST"])
 def station():
     body = request.get_json()
     station_url = body.get("station")
+    print(station_url)
     drones = body.get("drones")
     if station_url:
         url = f"{station_url}/drone?data=info"
@@ -184,6 +215,17 @@ def mission():
                 with open(mission_path, "rb") as f:
                     binary_data = f.read()
                     response = requests.post(url, data=binary_data, headers=headers)
+                    mission_id = response.json().get("missionId")
+
+                    # create a new mission record
+                    mission = Mission(
+                        groundstation=station_url,
+                        drone_id=drone,
+                        mission_id=mission_id
+                    )
+
+                    db.session.add(mission)
+                    db.session.commit()
 
             except Exception as e:
                 print(f"Failed to send mission to drone {drone}: {e}")
@@ -195,6 +237,41 @@ def mission():
         return jsonify({"message": "Missions sent to drones"})
     else:
         return jsonify({"error": "Station URL is required"}), 400
+
+
+@app.route("/avoidance/<drone>", methods=["POST"])
+def avoidance(drone):
+    mission = Mission.query.filter_by(drone_id=drone).first()
+    station_url = mission.groundstation
+    mission_id = mission.mission_id
+    paused = mission.paused
+    if not paused and station_url and mission_id:
+        url = f"{station_url}/mission/{mission_id}/pause"
+        headers = {
+            "Accept": "application/json",
+        }
+
+        try:
+            response = requests.post(url, headers=headers)
+
+            if response.status_code == 200:
+                print(f"Mission paused for drone {drone}")
+
+                # update state of mission to paused
+                mission.paused = True
+                db.session.commit()
+
+                # build avoidance
+
+                return jsonify({"message": "Mission paused"})
+
+        except Exception as e:
+            print(f"Failed to pause mission for drone {drone}: {e}")
+            pass
+
+        return jsonify({"error": "Mission ID not found"}), 404
+    else:
+        return jsonify({"error": "No station recorded yet"}), 400
 
 @app.route("/index.html")
 def index():

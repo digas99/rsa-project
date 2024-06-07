@@ -27,9 +27,8 @@ RUN apt-get update && \
 RUN python3 -m pip install \
     paho-mqtt
 
-COPY app.py /home/
-COPY telem /home/telem
-COPY entrypoint.sh /home/
+COPY messages.py /home
+COPY telemetry/telem /home
 
 WORKDIR /home/
 
