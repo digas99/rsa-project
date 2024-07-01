@@ -25,8 +25,10 @@ FONT_DIR = os.path.join(BASE_DIR, "fonts")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 # Global variables to store the latest image and timestamp
-latest_image = None
-last_image_time = 0
+latest_image_device1 = None
+last_image_time1 = 0
+latest_image_device2 = None
+last_image_time2 = 0
 
 def make_frame(text):
     # Create a new image
@@ -59,33 +61,53 @@ TIMEOUT = 10  # seconds
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    global latest_image, last_image_time
+    global latest_image_device1, last_image_time_device1
+    global latest_image_device2, last_image_time_device2
+
+    device = request.args.get("device")  # Get the device parameter from the URL
     image_file = request.files.get("image")
+    
+    if not device or device not in ["device1", "device2"]:
+        return "Invalid or missing device parameter", 400
+
     if image_file:
         image = Image.open(image_file)
-        latest_image = image.copy()  # Copy the image to ensure it's in memory
-        last_image_time = time.time()  # Update the timestamp
+        if device == "device1":
+            latest_image_device1 = image.copy()
+            last_image_time_device1 = time.time()
+        elif device == "device2":
+            latest_image_device2 = image.copy()
+            last_image_time_device2 = time.time()
+    
     return "Image uploaded", 200
+
 
 @app.route("/stream.mjpg")
 def stream():
-    def generate():
+    device = request.args.get("device")  # Get the device parameter from the URL
+    def generate(device):
+        if not device or device not in ["device1", "device2"]:
+            return "Invalid or missing device parameter", 400
+        
         while True:
             current_time = time.time()
-            if latest_image and (current_time - last_image_time <= TIMEOUT):
-                buf = io.BytesIO()
-                latest_image.save(buf, format='JPEG')
-                frame = buf.getvalue()
+            if device == "device1" and latest_image_device1 and (current_time - last_image_time_device1 <= TIMEOUT):
+                image = latest_image_device1
+            elif device == "device2" and latest_image_device2 and (current_time - last_image_time_device2 <= TIMEOUT):
+                image = latest_image_device2
             else:
-                buf = io.BytesIO()
-                default_image.save(buf, format='JPEG')
-                frame = buf.getvalue()
+                # Load default image if no valid image is available
+                image = default_image.copy()
+            
+            buf = io.BytesIO()
+            image.save(buf, format='JPEG')
+            frame = buf.getvalue()
             
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             time.sleep(1)  # Small delay to control frame rate
 
-    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate(device), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route("/generate", methods=["POST"])
 def generate():

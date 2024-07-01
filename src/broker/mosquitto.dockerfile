@@ -1,7 +1,7 @@
 FROM eclipse-mosquitto:latest
 
 # MQTT port + WS port
-EXPOSE 1884
+EXPOSE 1883
 EXPOSE 9001
 
 # Copy the configuration file

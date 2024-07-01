@@ -9,6 +9,8 @@
 		integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
 		crossorigin=""></script>
 
+	<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
 	<link rel="stylesheet" href="static/styles/mission.css"></link>
 </head>
     <body>
@@ -91,14 +93,14 @@
 				<div class="drones-feed">
 					<div>
 						<div class="name">Drone: ---</div>
-						<img src="stream.mjpg" width="448" height="336" />
+						<img src="stream.mjpg?device=device1" width="448" height="336" />
 						<div class="data">
 							<div>People</div><div class="count">0</div>
 						</div>
 					</div>
 					<div>
 						<div class="name">Drone: ---</div>
-						<img src="stream.mjpg" width="448" height="336" />
+						<img src="stream.mjpg?device=device2" width="448" height="336" />
 						<div class="data">
 							<div>People</div><div class="count">0</div>
 						</div>

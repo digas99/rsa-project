@@ -306,3 +306,39 @@ const step = urlParams.get("step");
 if (step) {
 	selectStep(step);
 }
+
+// Connect to the MQTT broker
+url = window.location.href;
+const client = mqtt.connect('ws://' + url.split('/')[2] + ':9005');
+
+client.on('connect', function () {
+    console.log('Connected to MQTT broker');
+
+    // Subscribe to the topics /counter/device1 and /counter/device2
+	client.subscribe('/counter/device1', function (err) {
+		if (!err) {
+			console.log('Subscribed to /counter/device1');
+		}
+	});
+	client.subscribe('/counter/device2', function (err) {
+		if (!err) {
+			console.log('Subscribed to /counter/device2');
+		}
+	});
+});
+
+client.on('message', function (topic, message) {
+	const counters = document.querySelectorAll(".count");
+	if (topic === '/counter/device1') {
+		const counter = JSON.parse(message.toString())["people"];
+		counters[0].innerText = counter;
+	}
+	if (topic === '/counter/device2') {
+		const counter = JSON.parse(message.toString())["people"];
+		counters[1].innerText = counter;
+	}
+});
+
+client.on('error', function (error) {
+    console.error('Connection error:', error);
+});
