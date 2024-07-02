@@ -250,7 +250,7 @@ const handleStationInfo = missions => {
 					updateStatus(0, true);
 
 					// update drone status
-					const drones = getSelectedDrones();
+					const drones = getSelectedDrones().map(drone => drone.name);
 					const availableDrones = data;
 					drones.forEach((drone, index) => {
 						updateStatus(index + 1, availableDrones.includes(drone));
@@ -263,9 +263,9 @@ const handleStationInfo = missions => {
 			});
 		};
 
-		pingStation(getSelectedDrones());
+		pingStation(getSelectedDrones().map(drone => drone.name));
 
-		stationPing = setInterval(() => pingStation(getSelectedDrones()), 1000);
+		stationPing = setInterval(() => pingStation(getSelectedDrones().map(drone => drone.name)), 1000);
 	}
 
 	// add mission files
@@ -277,8 +277,15 @@ const handleStationInfo = missions => {
 }
 
 const getSelectedDrones = () => {
-	const drones = Array.from(document.querySelectorAll(".drones .name")).map(name => name.innerText);
-	return drones;
+	const drones = Array.from(document.querySelectorAll(".drones > div"));
+	const data = [];
+	drones.forEach(drone => {
+		data.push({
+			name: drone.querySelector(".name").innerText,
+			server: drone.querySelector(".drone-server input").value
+		})
+	});
+	return data;
 }
 
 const updateStatus = (index, online) => {

@@ -4,8 +4,8 @@ services:
   dashboard:
     image: rsa-dashboard
     build:
-      context: ../../..
-      dockerfile: src/groundstation/dashboard/Dockerfile
+      context: ..
+      dockerfile: dashboard/Dockerfile
     restart: always
     network_mode: host
     depends_on:

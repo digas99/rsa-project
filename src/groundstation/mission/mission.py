@@ -24,7 +24,7 @@ class Missions:
 			polygon = self.polygons.geoms[i]
 			mission_file = f'{drone}_mission.groovy'
 			
-			coords = polygon.exterior.coords if self.close_loop else polygon.exterior.coords[:-1]
+			coords = list(polygon.exterior.coords) if self.close_loop else polygon.exterior.coords[:-1]
 
 			file_content = (
 				f'drone = assign \'{drone}\'' + '\n' 
@@ -45,6 +45,10 @@ class Missions:
 				'drone': drone,
 				'file': mission_file,
 				'content': file_content,
+				'polygon': {
+					'center': polygon.centroid.coords[0],
+					'coords': coords,
+				}
 			})
 
 		return self.mission_files

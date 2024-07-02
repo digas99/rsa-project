@@ -3,4 +3,4 @@
 source /opt/ros/galactic/setup.bash
 
 # Execute the passed command
-exec python3 /home/telem/app.py "$@"
+exec python3 /home/app.py "$@"

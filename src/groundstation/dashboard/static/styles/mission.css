@@ -160,6 +160,10 @@ button {
 	font-size: 70px;
 }
 
+.drone-server {
+	text-align: center;
+}
+
 .loading {
 
 }
